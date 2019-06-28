@@ -1,14 +1,9 @@
 #!/usr/bin/python
-# vim: et sw=4 ts=4:
-# -*- coding: utf-8 -*-
 #
 # Matomo - free/libre analytics platform
 #
-# @link https://matomo.org
 # @license https://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
 # @version $Id$
-#
-# For more info see: https://matomo.org/log-analytics/ and https://matomo.org/docs/log-analytics-tool-how-to/
 #
 # Requires Python 2.6 or 2.7
 #
