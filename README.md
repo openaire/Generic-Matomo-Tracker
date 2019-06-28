@@ -19,9 +19,10 @@ Requires python 2.6 or 2.7.
 3. Download COUNTER Robots List: 
  wget https://raw.githubusercontent.com/atmire/COUNTER-Robots/master/COUNTER_Robots_list.json 
 4. Download matomo_import_logs.py and matomo.yaml to activated project folder
-5. Install the following packages:
+6. Configure matomo parameters in matomo.yaml
+7. Install the following packages:
     - pip install pyyaml
-6. Run the importer
+8. Run the importer
  /usr/bin/python2.7 {logs_folder}
 
 
