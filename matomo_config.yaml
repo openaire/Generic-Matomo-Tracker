@@ -2,13 +2,13 @@ info: "OpenAIRE Matomo Tracker"
 
 Matomo_Parameters:
   #Matomo tracker Endpoint
-  matomo_url: "http://localhost/analytics"
+  matomo_url: "https://analytics.openaire.eu/"
   #Repository Base Url
   repository_base_url: "http://localhost"
   #Matomo Repository Site ID
   idSite: 1
   #Matomo authenticastion token 
-  token_auth: "9a5d071dbf9e3f2757e624ed107a9a7f"
+  token_auth: "123456789"
   #matomo parameters (default values)
   delay_after_failure: 10
   default_max_attempts: 3
