@@ -1,9 +1,14 @@
 #!/usr/bin/python
+# vim: et sw=4 ts=4:
+# -*- coding: utf-8 -*-
 #
 # Matomo - free/libre analytics platform
 #
+# @link https://matomo.org
 # @license https://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
 # @version $Id$
+#
+# For more info see: https://matomo.org/log-analytics/ and https://matomo.org/docs/log-analytics-tool-how-to/
 #
 # Requires Python 2.6 or 2.7
 #
@@ -1037,8 +1042,13 @@ class Parser(object):
             for i in config.options["Matomo_Parameters"]["tracking_metadata"]:
                     pattern = re.compile(i)
                     if pattern.match(hit.path):
-                        hit.add_page_custom_var("oaipmhID", config.options['Matomo_Parameters']['oaipmh_preamble']+":"+hit.path[len(i):])
-                        hit.is_meta=True
+                        tmpOAIPMH=i+config.options["Matomo_Parameters"]["oaipmh_regex"]
+                        patternOAI=re.compile(tmpOAIPMH)
+                        if patternOAI.match(hit.path):
+                            finalOAIpmh=config.options["Matomo_Parameters"]["oaipmh_preamble"]+patternOAI.match(hit.path).group(0)[patternOAI.match(hit.path).group(0).rfind("/")+1:]
+                            if finalOAIpmh!=config.options["Matomo_Parameters"]["oaipmh_preamble"]:
+                                hit.add_page_custom_var("oaipmhID",finalOAIpmh)
+                                hit.is_meta=True
                     break
         return True
 
@@ -1047,8 +1057,13 @@ class Parser(object):
             for i in config.options["Matomo_Parameters"]["tracking_download"]:
                 pattern = re.compile(i)
                 if pattern.match(hit.path):
-                    hit.add_page_custom_var("oaipmhID", config.options['Matomo_Parameters']['oaipmh_preamble']+":"+hit.path[len(i):hit.path.rfind('/')])
-                    hit.is_download = True
+                    tmpOAIPMH=i+config.options["Matomo_Parameters"]["oaipmh_regex"]
+                    patternOAI=re.compile(tmpOAIPMH)
+                    if patternOAI.match(hit.path):
+                        finalOAIpmh=config.options["Matomo_Parameters"]["oaipmh_preamble"]+patternOAI.match(hit.path).group(0)[patternOAI.match(hit.path).group(0).rfind("/")+1:]
+                        if finalOAIpmh!=config.options["Matomo_Parameters"]["oaipmh_preamble"]:
+                            hit.add_page_custom_var("oaipmhID",finalOAIpmh)
+                            hit.is_download = True
                 break
         return True
 
@@ -1346,6 +1361,8 @@ class Parser(object):
                 invalid_line(line, 'invalid timezone')
                 continue
 
+            f= open("out","a")    
+
             if timezone:
                 hit.date -= datetime.timedelta(hours=timezone/100)
 
@@ -1361,7 +1378,7 @@ class Parser(object):
                 stats.count_lines_downloads.increment()
 
             #else:
-             #print "not pass "+ hit.path + " "+ str(hit.is_meta)
+            # f.write("not pass "+ hit.full_path +" "+hit.user_agent+'\n')
             if len(hits) >= 200 * len(Recorder.recorders):
                 Recorder.add_hits(hits)
                 hits = []
