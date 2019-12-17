@@ -4,7 +4,7 @@ A generic usage activity tracker for Matomo platform. The script is based on the
 
 1. Parses the Web server log files 
 2. Cleans non-legitimate traffic, eg. bots, search engines using the COUNTER Robot list  
-3. Records usage activity for metadata and downloaded items from repositories 
+3. Imports usage activity for metadata and downloaded items from repositories to OpenAIRE's Matomo platform.
 
 Requires python 2.6 or 2.7.
 
@@ -25,7 +25,8 @@ Requires python 2.6 or 2.7.
 8. Run the importer
  /usr/bin/python2.7 {logs_folder}
 
-
+## Note ##
+The imported logs should be removed from the {logs_folder} to avoid duplication of events.
 [1] https://matomo.org/docs/log-analytics-tool-how-to/
 
 
