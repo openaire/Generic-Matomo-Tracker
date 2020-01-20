@@ -6,32 +6,29 @@ Matomo_Parameters:
   #Repository Base Url
   repository_base_url: "https://repository.com"
   #Matomo Repository Site ID
-  idSite: 47
+  idSite: 1
   #Matomo authenticastion token
-  #token_auth: "9a5d071dbf9e3f2757e624ed107a9a7f"
   token_auth: "12345"
   #matomo parameters (default values)
   delay_after_failure: 10
   default_max_attempts: 3
   default_socket_timeout: 300
-  ip_anonymization: false
+  #IP Anonuymization
+  ip_anonymization: false 
+  #Skip the n first lines to start parsing/importing data at a given line for the specified log file
+  skip_lines: 0
 
   # Number of recorders. It should be set to the number of CPU cores in your server.
   # You can also experiment with higher values which may increase performance until a certain point
   recorders: 1
   #OAI-PMH Configuration
-  oaipmh_preamble: "oai:repository.com:"
-  oaipmh_regex: "/[0-9]*"
+  oaipmh_preamble: "oai:www.pedocs.de-opus:"
+  #oaipmh regular expressions to build the oaipmh id
+  oaipmh_regex_metadata: "([0-9]*)"
+  oaipmh_regex_download: "[0-9]*/([0-9)]*)"
   #Metadata Location (regexp supported)
   tracking_metadata:
-  #- "/[0-9]*"
-  #- "^((?!.*pdf.*).)*$"
-  - "/handle/[0-9]*"
-  #- "/record"
-  #- "/publication/"
+  - "/publication/"
   #Item Location (regexp supported)
   tracking_download:
-   #- "pdf"
-  #- "/[0-9]*"
-  - "/bitstream/handle/[0-9]*"
-  #- "/download"
+  - "/download/"

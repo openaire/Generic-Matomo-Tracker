@@ -438,6 +438,7 @@ class Configuration(object):
         # Configure logging before calling logging.{debug,info}.
         logging.basicConfig(
             format='%(asctime)s: [%(levelname)s] %(message)s',
+            filename='Matomo_import.log',
             level=logging.INFO,
         )
 
@@ -1042,13 +1043,14 @@ class Parser(object):
             for i in config.options["Matomo_Parameters"]["tracking_metadata"]:
                     pattern = re.compile(i)
                     if pattern.match(hit.path):
-                        tmpOAIPMH=i+config.options["Matomo_Parameters"]["oaipmh_regex"]
+                        tmpOAIPMH=i+config.options["Matomo_Parameters"]["oaipmh_regex_metadata"]
                         patternOAI=re.compile(tmpOAIPMH)
                         if patternOAI.match(hit.path):
-                            finalOAIpmh=config.options["Matomo_Parameters"]["oaipmh_preamble"]+patternOAI.match(hit.path).group(0)[patternOAI.match(hit.path).group(0).rfind("/")+1:]
+                            finalOAIpmh=config.options["Matomo_Parameters"]["oaipmh_preamble"]+patternOAI.match(hit.path).group(1)[patternOAI.match(hit.path).group(1).rfind("/")+1:]
                             if finalOAIpmh!=config.options["Matomo_Parameters"]["oaipmh_preamble"]:
                                 hit.add_page_custom_var("oaipmhID",finalOAIpmh)
                                 hit.is_meta=True
+
                     break
         return True
 
@@ -1057,10 +1059,10 @@ class Parser(object):
             for i in config.options["Matomo_Parameters"]["tracking_download"]:
                 pattern = re.compile(i)
                 if pattern.match(hit.path):
-                    tmpOAIPMH=i+config.options["Matomo_Parameters"]["oaipmh_regex"]
+                    tmpOAIPMH=i+config.options["Matomo_Parameters"]["oaipmh_regex_download"]
                     patternOAI=re.compile(tmpOAIPMH)
                     if patternOAI.match(hit.path):
-                        finalOAIpmh=config.options["Matomo_Parameters"]["oaipmh_preamble"]+patternOAI.match(hit.path).group(0)[patternOAI.match(hit.path).group(0).rfind("/")+1:]
+                        finalOAIpmh=config.options["Matomo_Parameters"]["oaipmh_preamble"]+patternOAI.match(hit.path).group(1)[patternOAI.match(hit.path).group(1).rfind("/")+1:]
                         if finalOAIpmh!=config.options["Matomo_Parameters"]["oaipmh_preamble"]:
                             hit.add_page_custom_var("oaipmhID",finalOAIpmh)
                             hit.is_download = True
@@ -1133,7 +1135,7 @@ class Parser(object):
         if isinstance(format, W3cExtendedFormat):
             format.check_for_iis_option()
         # dpie check
-        # print "Format name "+format.name
+        #print "Format name "+format.name
         return format
 
     @staticmethod
@@ -1230,6 +1232,9 @@ class Parser(object):
             lineno = lineno + 1
 
             stats.count_lines_parsed.increment()
+            if stats.count_lines_parsed.value <= config.options["Matomo_Parameters"]["skip_lines"]:
+                continue
+
 
             match = format.match(line)
             if not match:
@@ -1530,6 +1535,12 @@ Performance summary
                 current_total - latest_total_recorded,
             ))
             latest_total_recorded = current_total
+            logging.info('%d lines parsed, %d lines recorded, %d records/sec (avg), %d records/sec (current)' % (
+                stats.count_lines_parsed.value,
+                current_total,
+                current_total / time_elapsed if time_elapsed != 0 else 0,
+                current_total - latest_total_recorded,
+            ))
             time.sleep(1)
 
     def start_monitor(self):
@@ -1557,6 +1568,7 @@ def main():
     try:
         for filename in config.filenames:
             parser.parse(filename)
+            logging.info("Reading..."+filename)
 
         Recorder.wait_empty()
     except KeyboardInterrupt:
