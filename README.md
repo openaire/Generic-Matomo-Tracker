@@ -22,7 +22,7 @@ Requires python 2.6 or 2.7.
 6. Configure matomo parameters in matomo.yaml
 7. Install the following packages:
     - `pip install pyyaml`
-8. Run the importer `python matomo_import_logs.py {logs_folder}`
+8. Run the importer `$python matomo_import_logs.py {logs_folder}`
 
 ## Note ##
 The imported logs should be removed from the {logs_folder} to avoid duplication of events.
