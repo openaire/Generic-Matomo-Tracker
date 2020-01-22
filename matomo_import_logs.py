@@ -1043,15 +1043,12 @@ class Parser(object):
             for i in config.options["Matomo_Parameters"]["tracking_metadata"]:
                     pattern = re.compile(i)
                     if pattern.match(hit.path):
-                        tmpOAIPMH=i+config.options["Matomo_Parameters"]["oaipmh_regex_metadata"]
-                        patternOAI=re.compile(tmpOAIPMH)
+                        patternOAI=re.compile(i)
                         if patternOAI.match(hit.path):
                             finalOAIpmh=config.options["Matomo_Parameters"]["oaipmh_preamble"]+patternOAI.match(hit.path).group(1)[patternOAI.match(hit.path).group(1).rfind("/")+1:]
                             if finalOAIpmh!=config.options["Matomo_Parameters"]["oaipmh_preamble"]:
                                 hit.add_page_custom_var("oaipmhID",finalOAIpmh)
                                 hit.is_meta=True
-
-                    break
         return True
 
     def check_download(self, hit):
@@ -1059,14 +1056,12 @@ class Parser(object):
             for i in config.options["Matomo_Parameters"]["tracking_download"]:
                 pattern = re.compile(i)
                 if pattern.match(hit.path):
-                    tmpOAIPMH=i+config.options["Matomo_Parameters"]["oaipmh_regex_download"]
-                    patternOAI=re.compile(tmpOAIPMH)
+                    patternOAI=re.compile(i)
                     if patternOAI.match(hit.path):
                         finalOAIpmh=config.options["Matomo_Parameters"]["oaipmh_preamble"]+patternOAI.match(hit.path).group(1)[patternOAI.match(hit.path).group(1).rfind("/")+1:]
                         if finalOAIpmh!=config.options["Matomo_Parameters"]["oaipmh_preamble"]:
                             hit.add_page_custom_var("oaipmhID",finalOAIpmh)
                             hit.is_download = True
-                break
         return True
 
     def check_user_agent(self, hit):
