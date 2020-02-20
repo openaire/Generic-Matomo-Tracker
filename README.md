@@ -6,7 +6,7 @@ A generic usage activity tracker for Matomo platform. The script is based on the
 2. Cleans non-legitimate traffic, eg. bots, search engines using the COUNTER Robot list  
 3. Imports usage activity for metadata and downloaded items from repositories to OpenAIRE's Matomo platform.
 
-Requires python 2.6 or 2.7.
+Requires python 2.7.
 
 ## Quick Install And Run ##
 
