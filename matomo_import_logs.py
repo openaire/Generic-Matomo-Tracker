@@ -42,6 +42,7 @@ import traceback
 import socket
 import textwrap
 import yaml
+import getopt
 
 try:
     import json
@@ -830,6 +831,9 @@ class Recorder(object):
         #    hit.add_visit_custom_var("Not-Bot", hit.user_agent)
 
 
+        if (hit.referrer.find("?q=") >=0):
+            hit.referrer = hit.referrer.split("?q=")[0]+"/?q=-"
+
         args = {
             'rec': '1',
             'apiv': '1',
@@ -1227,9 +1231,14 @@ class Parser(object):
             lineno = lineno + 1
 
             stats.count_lines_parsed.increment()
-            if stats.count_lines_parsed.value <= config.options["Matomo_Parameters"]["skip_lines"]:
-                continue
+            skiplines=0
+            opts, args = getopt.getopt(sys.argv[1:],"s:",["skip="])
 
+            for opt, arg in opts:
+                if  opt in ("-s", "--skip"):
+                    skiplines = arg
+            if stats.count_lines_parsed.value <= int(skiplines):
+                continue
 
             match = format.match(line)
             if not match:
@@ -1370,11 +1379,11 @@ class Parser(object):
             if is_filtered:
                 filtered_line(line, reason)
                 continue
-            if (not hit.is_robot) and (hit.is_meta or hit.is_download):
+            if (not hit.is_robot) and (hit.is_meta or hit.is_download) and (not hit.is_redirect):
                 hits.append(hit)
-            if (not hit.is_robot and hit.is_meta):
+            if (not hit.is_robot and not hit.is_redirect and hit.is_meta):
                 stats.count_lines_static.increment()
-            if (not hit.is_robot and hit.is_download):
+            if (not hit.is_robot and not hit.is_redirect and hit.is_download):
                 stats.count_lines_downloads.increment()
 
             #else:

@@ -15,10 +15,7 @@ Matomo_Parameters:
   default_socket_timeout: 300
   ip_anonymization: false
 
-  #Skip the n first lines to start parsing/importing data at a given line for the specified log file
-  skip_lines: 0
-
-  # Number of recorders. It should be set to the number of CPU cores in your server.
+    # Number of recorders. It should be set to the number of CPU cores in your server.
   # You can also experiment with higher values which may increase performance until a certain point
   recorders: 1
   
