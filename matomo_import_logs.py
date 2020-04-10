@@ -726,7 +726,8 @@ class Recorder(object):
             cls.recorders.append(recorder)
 
             #run = recorder._run_bulk if config.options.use_bulk_tracking else recorder._run_single
-            run = recorder._run_bulk
+            run = recorder._run_bulk 
+            
             t = threading.Thread(target=run)
 
             t.daemon = True
@@ -831,8 +832,8 @@ class Recorder(object):
         #    hit.add_visit_custom_var("Not-Bot", hit.user_agent)
 
 
-        if (hit.referrer.find("?q=") >=0):
-            hit.referrer = hit.referrer.split("?q=")[0]+"/?q=-"
+        if (hit.referrer.find("?") >=0):
+            hit.referrer = hit.referrer.split("?")[0]+" "
 
         args = {
             'rec': '1',
@@ -1133,7 +1134,6 @@ class Parser(object):
         # --w3c-time-taken-milli option isn't set
         if isinstance(format, W3cExtendedFormat):
             format.check_for_iis_option()
-        # dpie check
         #print "Format name "+format.name
         return format
 
