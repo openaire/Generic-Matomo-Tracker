@@ -15,10 +15,13 @@ Matomo_Parameters:
   default_socket_timeout: 300
   ip_anonymization: false
 
-    # Number of recorders. It should be set to the number of CPU cores in your server.
+  # Number of recorders. It should be set to the number of CPU cores in your server.
   # You can also experiment with higher values which may increase performance until a certain point
   recorders: 1
-  
+
+ #Maximum number of log entries to record in one tracking request. 
+  max_payload: 100
+
   #OAI-PMH Configuration
   oaipmh_preamble: "oai:repository.site:"
   

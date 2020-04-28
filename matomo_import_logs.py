@@ -1370,7 +1370,7 @@ class Parser(object):
                 invalid_line(line, 'invalid timezone')
                 continue
 
-            f= open("out","a")    
+            
 
             if timezone:
                 hit.date -= datetime.timedelta(hours=timezone/100)
@@ -1388,7 +1388,7 @@ class Parser(object):
 
             #else:
             # f.write("not pass "+ hit.full_path +" "+hit.user_agent+'\n')
-            if len(hits) >= 200 * len(Recorder.recorders):
+            if len(hits) >= config.options['Matomo_Parameters']['max_payload'] * len(Recorder.recorders):
                 Recorder.add_hits(hits)
                 hits = []
         # add last chunk of hits
