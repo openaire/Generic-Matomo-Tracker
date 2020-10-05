@@ -1,4 +1,4 @@
-info: "OpenAIRE Matomo Tracker"
+info: "OpenAIRE Generic Tracker"
 
 Matomo_Parameters:
   #Matomo tracker Endpoint
@@ -9,6 +9,8 @@ Matomo_Parameters:
   idSite: 1
   #Matomo authenticastion token
   token_auth: "12345"
+  #COUNTER Robots URL
+  COUNTER_Robots_url: "https://raw.githubusercontent.com/atmire/COUNTER-Robots/master/COUNTER_Robots_list.json"
   #matomo parameters (default values)
   delay_after_failure: 10
   default_max_attempts: 3

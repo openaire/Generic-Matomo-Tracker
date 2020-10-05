@@ -12,37 +12,36 @@
 #
 # Requires Python 2.6 or 2.7
 #
-
+from __future__ import print_function  # this is needed that python2 can run the script until the warning below
 import sys
 
-
-if sys.version_info[0] != 2:
-    print('The log importer currently does not work with Python 3 (or higher)')
-    print('Please use Python 2.6 or 2.7')
+if sys.version_info[0] != 3:
+    print('OpenAIRE Generic tracker does not support Python 2 any more.')
+    print('Please use Python 3.5, 3.6, 3.7 or 3.8')
     sys.exit(1)
 
 import bz2
 import datetime
 import gzip
-import httplib
+import http.client as httplib
 import inspect
 import itertools
 import logging
 import os
 import os.path
-import Queue
+import queue as queue
 import re
 import sys
 import threading
 import time
-import urllib
-import urllib2
-import urlparse
+import urllib.request as urllib2
+import urllib.parse as urlparse
 import traceback
 import socket
 import textwrap
 import yaml
 import getopt
+
 
 try:
     import json
@@ -466,7 +465,7 @@ class UrlHelper(object):
         """
 
         final_args = {}
-        for key, value in args.iteritems():
+        for key, value in args.items():
             indices = key.split('[')
             if '[' in key:
                 # contains list of all indices, eg for abc[def][ghi][] = 123, indices would be ['abc', 'def', 'ghi', '']
@@ -497,7 +496,7 @@ class UrlHelper(object):
     @staticmethod
     def _convert_dicts_to_arrays(d):
         # convert dicts that have contiguous integer keys to arrays
-        for key, value in d.iteritems():
+        for key, value in d.items():
             if not isinstance(value, dict):
                 continue
 
@@ -554,13 +553,13 @@ class Matomo(object):
         if url is None:
             url = config.options['Matomo_Parameters']['matomo_url']
         headers = headers or {}
-
         if data is None:
+            print("asfdsa")
             # If Content-Type isn't defined, PHP do not parse the request's body.
             headers['Content-type'] = 'application/x-www-form-urlencoded'
             data = urllib.urlencode(args)
-        elif not isinstance(data, basestring) and headers['Content-type'] == 'application/json':
-            data = json.dumps(data)
+        elif not isinstance(data, str) and headers['Content-type'] == 'application/json':
+            data = json.dumps(data).encode("utf-8")
 
             if args:
                 path = path + '?' + urllib.urlencode(args)
@@ -623,7 +622,7 @@ class Matomo(object):
         # Warning: we have to pass the parameters in order: foo[0], foo[1], foo[2]
         # and not foo[1], foo[0], foo[2] (it will break Matomo otherwise.)
         final_args = []
-        for key, value in args.iteritems():
+        for key, value in args.items():
             if isinstance(value, (list, tuple)):
                 for index, obj in enumerate(value):
                     final_args.append(('%s[%d]' % (key, index), obj))
@@ -710,7 +709,7 @@ class Recorder(object):
     recorders = []
 
     def __init__(self):
-        self.queue = Queue.Queue(maxsize=2)
+        self.queue = queue.Queue(maxsize=2)
 
         # if bulk tracking disabled, make sure we can store hits outside of the Queue
         #if not config.options.use_bulk_tracking:
@@ -721,13 +720,12 @@ class Recorder(object):
         """
         Launch a bunch of Recorder objects in a separate thread.
         """
-        for i in xrange(recorder_count):
+        for i in range(recorder_count):            
             recorder = Recorder()
             cls.recorders.append(recorder)
 
             #run = recorder._run_bulk if config.options.use_bulk_tracking else recorder._run_single
-            run = recorder._run_bulk 
-            
+            run = recorder._run_bulk
             t = threading.Thread(target=run)
 
             t.daemon = True
@@ -831,19 +829,19 @@ class Recorder(object):
         #else:
         #    hit.add_visit_custom_var("Not-Bot", hit.user_agent)
 
-
         if (hit.referrer.find("?") >=0):
             hit.referrer = hit.referrer.split("?")[0]+" "
+
 
         args = {
             'rec': '1',
             'apiv': '1',
-            'url': url.encode('utf8'),
-            'urlref': hit.referrer[:1024].encode('utf8'),
+            'url': url,
+            'urlref': hit.referrer[:1024],
             'cip': hit.ip,
             'cdt': self.date_to_matomo(hit.date),
             'idsite': site_id,
-            'ua': hit.user_agent.encode('utf8')
+            'ua': hit.user_agent
         }
 
         # idsite is already determined by resolver
@@ -883,10 +881,10 @@ class Recorder(object):
             args['bw_bytes'] = hit.length
 
         # convert custom variable args to JSON
-        if 'cvar' in args and not isinstance(args['cvar'], basestring):
+        if 'cvar' in args and not isinstance(args['cvar'], str):
             args['cvar'] = json.dumps(args['cvar'])
 
-        if '_cvar' in args and not isinstance(args['_cvar'], basestring):
+        if '_cvar' in args and not isinstance(args['_cvar'], str):
             args['_cvar'] = json.dumps(args['_cvar'])
 
         return UrlHelper.convert_array_args(args)
@@ -910,7 +908,6 @@ class Recorder(object):
 
         try:
             args = {}
-
 
             response = matomo.call(
                 '/piwik.php', args=args,
@@ -979,7 +976,7 @@ class Hit(object):
     It's a simple container.
     """
     def __init__(self, **kwargs):
-        for key, value in kwargs.iteritems():
+        for key, value in kwargs.items():
             setattr(self, key, value)
         super(Hit, self).__init__()
 
@@ -1011,7 +1008,7 @@ class Hit(object):
         if api_arg_name not in self.args:
             self.args[api_arg_name] = {}
 
-        if isinstance(self.args[api_arg_name], basestring):
+        if isinstance(self.args[api_arg_name], str):
             logging.debug("Ignoring custom %s variable addition [ %s = %s ], custom var already set to string." % (api_arg_name, key, value))
             return
 
@@ -1019,13 +1016,20 @@ class Hit(object):
         self.args[api_arg_name][index] = [key, value]
 
 class CheckRobots(object):
+    import os, ssl
+    if (not os.environ.get('PYTHONHTTPSVERIFY', '') and getattr(ssl, '_create_unverified_context', None)):
+        ssl._create_default_https_context = ssl._create_unverified_context
+    
     def _readCOUNTERRobots(self):
-        with open('COUNTER_Robots_list.json') as json_file:
-            self.counterRobotsList = json.load(json_file)
+        url = config.options["Matomo_Parameters"]["COUNTER_Robots_url"]
+        response = urllib2.urlopen(url)
+
+        self.counterRobotsList = json.loads(response.read())
         return self.counterRobotsList
 
     def __init__(self):
         self._readCOUNTERRobots()
+
 
 
 class Parser(object):
@@ -1094,7 +1098,7 @@ class Parser(object):
     def check_format(lineOrFile):
         format = False
         format_groups = 0
-        for name, candidate_format in FORMATS.iteritems():
+        for name, candidate_format in FORMATS.items():
             logging.debug("Check format %s", name)
 
             # skip auto detection for formats that can't be detected automatically
@@ -1103,7 +1107,7 @@ class Parser(object):
 
             match = None
             try:
-                if isinstance(lineOrFile, basestring):
+                if isinstance(lineOrFile, str):
                     match = candidate_format.check_format_line(lineOrFile)
                 else:
                     match = candidate_format.check_format(lineOrFile)
@@ -1134,6 +1138,7 @@ class Parser(object):
         # --w3c-time-taken-milli option isn't set
         if isinstance(format, W3cExtendedFormat):
             format.check_for_iis_option()
+        # dpie check
         #print "Format name "+format.name
         return format
 
@@ -1200,7 +1205,8 @@ class Parser(object):
             file = sys.stdin
         else:
             if not os.path.exists(filename):
-                print >> sys.stderr, "\n=====> Warning: File %s does not exist <=====" % filename
+                #print >> sys.stderr, "\n=====> Warning: File %s does not exist <=====" % filename
+                print("\n=====> Warning: File %s does not exist <=====" % filename, file=sys.stderr)
                 return
             else:
                 if filename.endswith('.bz2'):
@@ -1211,7 +1217,6 @@ class Parser(object):
                     open_func = open
                 file = open_func(filename, 'r')
 
-
         format = self.detect_format(file)
         if format is None:
             return fatal_error(
@@ -1221,7 +1226,6 @@ class Parser(object):
         # Make sure the format is compatible with the resolver.
         #resolver.check_format(format)
         valid_lines_count = 0
-
         hits = []
         lineno = -1
         while True:
@@ -1233,7 +1237,6 @@ class Parser(object):
             stats.count_lines_parsed.increment()
             skiplines=0
             opts, args = getopt.getopt(sys.argv[1:],"s:",["skip="])
-
             for opt, arg in opts:
                 if  opt in ("-s", "--skip"):
                     skiplines = arg
@@ -1370,8 +1373,6 @@ class Parser(object):
                 invalid_line(line, 'invalid timezone')
                 continue
 
-            
-
             if timezone:
                 hit.date -= datetime.timedelta(hours=timezone/100)
 
@@ -1414,7 +1415,7 @@ class Statistics(object):
             self.value = 0
 
         def increment(self):
-            self.value = self.counter.next()
+            self.value = self.counter.__next__()
 
         def advance(self, n):
             for i in range(n):
@@ -1472,7 +1473,7 @@ class Statistics(object):
         line (as a string). One level of indentation is 4 spaces.
         """
         prefix = ' ' * (4 * level)
-        if isinstance(lines, basestring):
+        if isinstance(lines, str):
             return prefix + lines
         else:
             return '\n'.join(
@@ -1587,12 +1588,15 @@ def main():
     stats.print_summary()
 
 def fatal_error(error, filename=None, lineno=None):
-    print >> sys.stderr, 'Fatal error: %s' % error
+    #print >> sys.stderr, 'Fatal error: %s' % error
+    sys.stderr.write("fatal error\n")
+    sys.stderr.write(error)
     if filename and lineno is not None:
-        print >> sys.stderr, (
-            'You can restart the import of "%s" from the point it failed by '
-            'specifying --skip=%d on the command line.\n' % (filename, lineno)
-        )
+        sys.stderr.write('You can restart the import of "%s" from the point it failed by specifying --skip=%d on the command line.\n' % (filename, lineno))
+        #print >> sys.stderr, (
+        #    'You can restart the import of "%s" from the point it failed by '
+        #    'specifying --skip=%d on the command line.\n' % (filename, lineno)
+        #)
     os._exit(1)
 
 if __name__ == '__main__':
