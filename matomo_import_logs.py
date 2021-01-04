@@ -434,7 +434,11 @@ class Configuration(object):
         Parse the command line args and create self.options and self.filenames.
         """
         filePath = os.path.abspath(os.path.abspath(sys.argv[-1]))
-        self.filenames  = [(filePath+"/"+x) for x in os.listdir(filePath)]
+        if os.path.isdir(filePath):
+            self.filenames  = [(filePath+"/"+x) for x in os.listdir(filePath)]
+        elif os.path.isfile(filePath):
+            self.filenames = [filePath]
+        
         # Configure logging before calling logging.{debug,info}.
         logging.basicConfig(
             format='%(asctime)s: [%(levelname)s] %(message)s',
@@ -554,7 +558,6 @@ class Matomo(object):
             url = config.options['Matomo_Parameters']['matomo_url']
         headers = headers or {}
         if data is None:
-            print("asfdsa")
             # If Content-Type isn't defined, PHP do not parse the request's body.
             headers['Content-type'] = 'application/x-www-form-urlencoded'
             data = urllib.urlencode(args)

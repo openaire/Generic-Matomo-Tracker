@@ -20,7 +20,7 @@ Requires python 3.
 5. Configure matomo parameters in matomo.yaml
 6. Install the following packages:
     - `pip install pyyaml`
-7. Run the importer `$python3 matomo_import_logs.py {logs_folder}`
+7. Run the importer `$python3 matomo_import_logs.py {logs_folder}` or `$python3 matomo_import_logs.py {log_file}`
 
 
 ## Note ##
