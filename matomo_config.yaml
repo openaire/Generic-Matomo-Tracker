@@ -11,6 +11,8 @@ Matomo_Parameters:
   token_auth: "12345"
   #COUNTER Robots URL
   COUNTER_Robots_url: "https://raw.githubusercontent.com/atmire/COUNTER-Robots/master/COUNTER_Robots_list.json"
+  #Custom Log File Format
+  LogFileFormat: 
   #matomo parameters (default values)
   delay_after_failure: 10
   default_max_attempts: 3

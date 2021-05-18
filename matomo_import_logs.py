@@ -1051,6 +1051,7 @@ class Parser(object):
 
 
     def check_static(self, hit):
+        hit.path=urlparse.unquote(hit.path)
         if config.options["Matomo_Parameters"]["tracking_metadata"] is not None:
             for i in config.options["Matomo_Parameters"]["tracking_metadata"]:
                     pattern = re.compile(i)
@@ -1064,6 +1065,7 @@ class Parser(object):
         return True
 
     def check_download(self, hit):
+        hit.path=urlparse.unquote(hit.path)
         if config.options["Matomo_Parameters"]["tracking_download"] is not None:
             for i in config.options["Matomo_Parameters"]["tracking_download"]:
                 pattern = re.compile(i)
@@ -1101,6 +1103,9 @@ class Parser(object):
     def check_format(lineOrFile):
         format = False
         format_groups = 0
+        if config.options['Matomo_Parameters']['LogFileFormat']:
+            _INPUT_FORMAT = (config.options['Matomo_Parameters']['LogFileFormat'])
+            FORMATS['custom_input_format']=RegexFormat('custom_input_format', _INPUT_FORMAT)      
         for name, candidate_format in FORMATS.items():
             logging.debug("Check format %s", name)
 
@@ -1175,8 +1180,8 @@ class Parser(object):
             pass
 
         if not format:
-            fatal_error("cannot automatically determine the log format using the first %d lines of the log file. " % limit +
-                        "\nMaybe try specifying the format with the --log-format-name command line argument." )
+            fatal_error("Cannot automatically determine the log format using the first %d lines of the log file. " % limit +
+                        "\nMaybe try specifying the format in LogFileFormat variable of yaml file." )
             return
 
         logging.debug('Format %s is the best match', format.name)

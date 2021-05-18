@@ -26,6 +26,7 @@ Requires python 3.
 ## Note ##
 * The imported logs should be removed from the {logs_folder} to avoid duplication of events.
 * Skip the `n` first lines to start parsing/importing data at a given line for the specified log file using -s `n` or --skip=`n` (eg. -s 1000 or --skip=1000 )
+* Configure the `LogFileFormat` parameter in yaml for a customized log file format
 
 
 [1] https://matomo.org/docs/log-analytics-tool-how-to/
